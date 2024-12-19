@@ -1,4 +1,4 @@
-module github.com/stellar/go
+module github.com/withobsrvr/go
 
 go 1.22
 
