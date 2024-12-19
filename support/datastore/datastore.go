@@ -34,6 +34,12 @@ func NewDataStore(ctx context.Context, datastoreConfig DataStoreConfig) (DataSto
 			return nil, errors.Errorf("Invalid GCS config, no destination_bucket_path")
 		}
 		return NewGCSDataStore(ctx, destinationBucketPath, datastoreConfig.Schema)
+	case "GCS_OAUTH":
+		destinationBucketPath, ok := datastoreConfig.Params["destination_bucket_path"]
+		if !ok {
+			return nil, errors.Errorf("Invalid GCS config, no destination_bucket_path")
+		}
+		return NewGCSDataStoreWithOAuth(ctx, destinationBucketPath, datastoreConfig.Schema, datastoreConfig.Params["access_token"])
 	default:
 		return nil, errors.Errorf("Invalid datastore type %v, not supported", datastoreConfig.Type)
 	}
