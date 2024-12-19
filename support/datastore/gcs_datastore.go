@@ -15,6 +15,9 @@ import (
 	"cloud.google.com/go/storage"
 	"google.golang.org/api/googleapi"
 
+	"golang.org/x/oauth2"
+	"google.golang.org/api/option"
+
 	"github.com/stellar/go/support/log"
 	"github.com/stellar/go/support/url"
 )
@@ -31,6 +34,20 @@ func NewGCSDataStore(ctx context.Context, bucketPath string, schema DataStoreSch
 	client, err := storage.NewClient(ctx)
 	if err != nil {
 		return nil, err
+	}
+
+	return FromGCSClient(ctx, client, bucketPath, schema)
+}
+
+// NewGCSDataStoreWithOAuth creates a GCSDataStore using a user's OAuth 2.0 credentials
+func NewGCSDataStoreWithOAuth(ctx context.Context, bucketPath string, schema DataStoreSchema, accessToken string) (DataStore, error) {
+	// Create an OAuth 2.0 token source
+	tokenSource := oauth2.StaticTokenSource(&oauth2.Token{AccessToken: accessToken})
+
+	// Create a storage client using the user's token
+	client, err := storage.NewClient(ctx, option.WithTokenSource(tokenSource))
+	if err != nil {
+		return nil, fmt.Errorf("failed to create storage client: %w", err)
 	}
 
 	return FromGCSClient(ctx, client, bucketPath, schema)
